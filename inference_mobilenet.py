@@ -5,6 +5,24 @@ import onnxruntime
 import torch
 import cv2
 
+# Load the calibration data
+try:
+    with np.load('calibration_data.npz') as data:
+        mtx = data['mtx']
+        dist = data['dist']
+except FileNotFoundError:
+    # File does not exist
+    print("Calibration File does not exist please calibration camera and start this script again")
+    exit()
+
+width = 1920
+height = 1080
+
+newcameramatrix, _ = cv2.getOptimalCameraMatrix(
+    mtx, dist, (width, height), 1, (width, height)
+)
+
+
 def preprocess_image(image_path, height, width, channels=3):
     image = Image.open(image_path)
     image = image.resize((width, height), Image.LANCZOS)
@@ -46,17 +64,18 @@ if __name__ == "__main__":
         categories = [s.strip() for s in f.readlines()]
     
     # Create Inference Session
-    session = onnxruntime.InferenceSession("mobilenet_v2_float.onnx")
+    session = onnxruntime.InferenceSession("supercombo.onnx")
 
     # get image from camera
     cap = cv2.VideoCapture(0)
-    cap.set(3,640) # set Width
-    cap.set(4,480) # set Height
+    cap.set(3,width) # set Width
+    cap.set(4,height) # set Height
 
     # capture image from camera
     ret, frame = cap.read()
     frame = cv2.flip(frame, -1) # Flip camera vertically
-    cv2.imwrite('capture.jpg', frame)
+    dst = cv2.undistort(frame, mtx, dist, None, newcameramatrix)
+    cv2.imwrite('capture.jpg', dst)
     cap.release()
     cv2.destroyAllWindows()
 

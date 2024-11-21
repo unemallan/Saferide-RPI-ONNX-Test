@@ -1,5 +1,27 @@
 ## Saferid onnxruntime-raspberrypi-test
 
+## Install Instruction
+
+Assuuming you have installed Rasbian into the pi and cloned this directory on to it.
+
+Change in to git directory
+```
+pip install -r requirements.txt
+```
+If you have not calibrated your camera mounted in the car with you Pi yet run
+
+```
+python cameracalibration.py
+```
+
+Once you have calibrated start the test in the car
+
+```
+python cameratest.py
+```
+
+
+## Openpilot Model Information
 ### Supercombo input format (Full size: 799906 x float32)
 #### image stream
 - Two consecutive images (256 * 512 * 3 in RGB) recorded at 20 Hz : 393216 = 2 * 6 * 128 * 256
