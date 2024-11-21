@@ -1,4 +1,4 @@
-## Saferid onnxruntime-raspberrypi-test
+# Saferide onnxruntime-raspberrypi-test
 
 ## Install Instruction
 
@@ -14,12 +14,17 @@ If you have not calibrated your camera mounted in the car with you Pi yet run
 python cameracalibration.py
 ```
 
-Once you have calibrated start the test in the car
+Once you have calibrated start a basic Camera test in the car to make sure everythig is fine
 
 ```
 python cameratest.py
 ```
 
+When your ready run this in the car
+
+```
+python inferance_supercombo.py
+```
 
 ## Openpilot Model Information
 ### Supercombo input format (Full size: 799906 x float32)
