@@ -1,48 +1,56 @@
 import cv2
 import numpy as np
-import glob
 
-# Dimensions of the chessboard (number of internal corners)
-grid_size = (9, 6)
+# Define the chessboard dimensions
+CHECKERBOARD = (8,8)
 
-# The real-world size of each square (2 cm)
-square_size = 2  # cm
+# Termination criteria for calibration
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-# 3D world coordinates of the chessboard
-obj_points = np.zeros((grid_size[0] * grid_size[1], 3), np.float32)
-obj_points[:, :2] = np.mgrid[0:grid_size[0], 0:grid_size[1]].T.reshape(-1, 2) * square_size
+# Prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+objp = np.zeros((CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
+objp[:,:2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 
-# Lists for storing the necessary points for calibration
-object_points = []  # 3D world coordinates
-image_points = []  # 2D image coordinates
+# Arrays to store object points and image points from all the images.
+objpoints = [] # 3d point in real world space
+imgpoints = [] # 2d points in image plane.
 
-# Folder where calibration images are stored
-images = glob.glob('calibration_images/*.jpg')
+# Start capturing video from the camera
+cap = cv2.VideoCapture(0)
 
-for fname in images:
-    img = cv2.imread(fname)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
 
-    # Find the corners of the chessboard
-    ret, corners = cv2.findChessboardCorners(gray, grid_size, None)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    if ret:
-        object_points.append(obj_points)
-        image_points.append(corners)
+    # Find the chessboard corners
+    ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, None)
 
-        # Visualize the corners
-        cv2.drawChessboardCorners(img, grid_size, corners, ret)
-        cv2.imshow('Chessboard Corners', img)
-        cv2.waitKey(500)
+    # If found, add object points, image points (after refining them)
+    if ret == True:
+        objpoints.append(objp)
+        corners2 = cv2.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
+        imgpoints.append(corners2)
 
-	cv2.destroyAllWindows()
+        # Draw and display the corners
+        cv2.drawChessboardCorners(frame, CHECKERBOARD, corners2, ret)
+        cv2.imshow('img', frame)
+        cv2.waitKey(1000)  # Wait for 1 second
 
-    # Perform calibration
-    ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
+    cv2.imshow('frame', frame)
+    if cv2.waitKey(1) == ord('q'):
+        break
 
-    # Save the camera matrix and distortion coefficients
-   np.savez('calibration_data.npz', camera_matrix=camera_matrix, dist_coeffs=dist_coeffs)
+# Calibrate the camera once enough images are collected
+if len(objpoints) > 0:
+    ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    np.savez('calibration_data.npz', camera_matrix=camera_matrix, dist_coeffs=dist_coeffs)
+    print("Camera matrix:")
+    print(mtx)
+    print("Distortion coefficients:")
+    print(dist)
 
-   # Print the calibration results
-   print("Camera Matrix:\n", camera_matrix)
-   print("Distortion Coefficients:\n", dist_coeffs)
+cap.release()
+cv2.destroyAllWindows()
