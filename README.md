@@ -11,19 +11,19 @@ pip install -r requirements.txt
 If you have not calibrated your camera mounted in the car with you Pi yet run
 
 ```
-python cameracalibration.py
+python3 cameracalibration.py
 ```
 
 Once you have calibrated start a basic Camera test in the car to make sure everythig is fine
 
 ```
-python cameratest.py
+python3 cameratest.py
 ```
 
 When your ready run this in the car
 
 ```
-python inferance_supercombo.py
+python3 inferance_supercombo.py
 ```
 
 ## Openpilot Model Information
