@@ -35,14 +35,14 @@ for fname in images:
         cv2.imshow('Chessboard Corners', img)
         cv2.waitKey(500)
 
-cv2.destroyAllWindows()
+	cv2.destroyAllWindows()
 
-# Perform calibration
-ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
+    # Perform calibration
+    ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
 
-# Save the camera matrix and distortion coefficients
-np.savez('calibration_data.npz', camera_matrix=camera_matrix, dist_coeffs=dist_coeffs)
+    # Save the camera matrix and distortion coefficients
+   np.savez('calibration_data.npz', camera_matrix=camera_matrix, dist_coeffs=dist_coeffs)
 
-# Print the calibration results
-print("Camera Matrix:\n", camera_matrix)
-print("Distortion Coefficients:\n", dist_coeffs)
+   # Print the calibration results
+   print("Camera Matrix:\n", camera_matrix)
+   print("Distortion Coefficients:\n", dist_coeffs)
